@@ -1,6 +1,6 @@
-const mysql = require('mysql')
-const { host, user, password, database } = require('./config')
-const { isObject } = require('../utils')
+const mysql = require("mysql");
+const { host, user, password, database } = require("./config");
+const { isObject } = require("../utils");
 
 function connect() {
   return mysql.createConnection({
@@ -9,43 +9,43 @@ function connect() {
     password,
     database,
     multipleStatements: true,
-  })
+  });
 }
 
 function querySql(sql) {
-  const conn = connect()
-  debug && console.log(sql)
+  const conn = connect();
+  // debug && console.log(sql)
   return new Promise((resolve, reject) => {
     try {
       conn.query(sql, (err, results) => {
         if (err) {
-          reject(err)
+          reject(err);
         } else {
-          resolve(results)
+          resolve(results);
+        }
+      });
+    } catch (e) {
+      reject(e);
+    } finally {
+      conn.end();
+    }
+  });
+}
+function queryOne(sql) {
+  return new Promise((resolve, reject) => {
+    querySql(sql)
+      .then((results) => {
+        if (results && results.length > 0) {
+          resolve(results[0]);
+        } else {
+          resolve(null);
         }
       })
-    } catch (e) {
-      reject(e)
-    } finally {
-      conn.end()
-    }
-  })
+      .catch((error) => {
+        reject(error);
+      });
+  });
 }
-// function queryOne(sql) {
-//   return new Promise((resolve, reject) => {
-//     querySql(sql)
-//       .then((results) => {
-//         if (results && results.length > 0) {
-//           resolve(results[0])
-//         } else {
-//           resolve(null)
-//         }
-//       })
-//       .catch((error) => {
-//         reject(error)
-//       })
-//   })
-// }
 // function update(model, tableName, where) {
 //   return new Promise((resolve, reject) => {
 //     if (!isObject(model)) {
@@ -121,5 +121,5 @@ function querySql(sql) {
 module.exports = {
   // connect,
   querySql,
-  //   queryOne,
-}
+  queryOne,
+};
