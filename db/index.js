@@ -120,9 +120,11 @@ function insert(model, tableName) {
           }
         } else {
           // valuesString = values.join(",");
-          valuesString = values;
+          // 单个记录插入
+          valuesString = "(" + `${values.toString()}` + ")";
         }
         sql = `${sql}${keysString}) VALUES ${valuesString}`;
+        console.log(sql);
         const conn = connect();
         try {
           conn.query(sql, (err, result) => {

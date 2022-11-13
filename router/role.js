@@ -36,9 +36,9 @@ router.get("/permissionlist", async function (req, res, next) {
         children: [
           {
             permissionFunctionId: permissionList[i].permissionFunctionId,
-            permissionName: permissionList[i].permissionFunctionName,
-            permissionMark: permissionList[i].permissionFunctionMark,
-            permissionDesc: permissionList[i].permissionFunctionDesc,
+            permissionFunctionName: permissionList[i].permissionFunctionName,
+            permissionFunctionMark: permissionList[i].permissionFunctionMark,
+            permissionFunctionDesc: permissionList[i].permissionFunctionDesc,
           },
         ],
       });
@@ -56,9 +56,9 @@ router.get("/permissionlist", async function (req, res, next) {
         if (resultArr[j].permissionName === permissionList[i].permissionName) {
           resultArr[j].children.push({
             permissionFunctionId: permissionList[i].permissionFunctionId,
-            permissionName: permissionList[i].permissionFunctionName,
-            permissionMark: permissionList[i].permissionFunctionMark,
-            permissionDesc: permissionList[i].permissionFunctionDesc,
+            permissionFunctionName: permissionList[i].permissionFunctionName,
+            permissionFunctionMark: permissionList[i].permissionFunctionMark,
+            permissionFunctionDesc: permissionList[i].permissionFunctionDesc,
           });
           break;
         }
@@ -124,6 +124,34 @@ router.get("/findpermission", async function (req, res, next) {
     } else {
       new Result(null, "获取用户的角色信息失败").fail(res);
     }
+  }
+});
+
+router.post("/distributepermission", async function (req, res, next) {
+  const err = validationResult(req);
+  // 如果报错，则抛出错误
+  if (!err.isEmpty()) {
+    const [{ msg }] = err.errors;
+    next(boom.badRequest(msg));
+  } else {
+    console.log(req.body);
+    console.log(req.body[0].roleId);
+    roleService
+      .delPermissionRole(req.body[0].roleId)
+      .then(() => {
+        console.log("删除成功");
+        roleService
+          .updatePermissionRole(req.body)
+          .then(() => {
+            new Result(null, "更新角色成功").success(res);
+          })
+          .catch((err) => {
+            next(boom.badImplementation(err));
+          });
+      })
+      .catch((err) => {
+        next(boom.badImplementation(err));
+      });
   }
 });
 

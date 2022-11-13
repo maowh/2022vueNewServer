@@ -38,6 +38,18 @@ function findPermission(id) {
   }
 }
 
+function delPermissionRole(id) {
+  if (id) {
+    const sql = `delete from rolepermissionfunction where roleId='${id}'`;
+    return querySql(sql);
+  }
+}
+
+function updatePermissionRole(model) {
+  const tableName = "rolepermissionfunction";
+  return insert(model, tableName);
+}
+
 module.exports = {
   roleList,
   permissionList,
@@ -45,4 +57,6 @@ module.exports = {
   delRole,
   updateRole,
   findPermission,
+  delPermissionRole,
+  updatePermissionRole,
 };
