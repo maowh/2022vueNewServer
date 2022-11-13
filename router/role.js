@@ -36,9 +36,9 @@ router.get("/permissionlist", async function (req, res, next) {
         children: [
           {
             permissionFunctionId: permissionList[i].permissionFunctionId,
-            permissionFunctionName: permissionList[i].permissionFunctionName,
-            permissionFunctionMark: permissionList[i].permissionFunctionMark,
-            permissionFunctionDesc: permissionList[i].permissionFunctionDesc,
+            permissionName: permissionList[i].permissionFunctionName,
+            permissionMark: permissionList[i].permissionFunctionMark,
+            permissionDesc: permissionList[i].permissionFunctionDesc,
           },
         ],
       });
@@ -56,9 +56,9 @@ router.get("/permissionlist", async function (req, res, next) {
         if (resultArr[j].permissionName === permissionList[i].permissionName) {
           resultArr[j].children.push({
             permissionFunctionId: permissionList[i].permissionFunctionId,
-            permissionFunctionName: permissionList[i].permissionFunctionName,
-            permissionFunctionMark: permissionList[i].permissionFunctionMark,
-            permissionFunctionDesc: permissionList[i].permissionFunctionDesc,
+            permissionName: permissionList[i].permissionFunctionName,
+            permissionMark: permissionList[i].permissionFunctionMark,
+            permissionDesc: permissionList[i].permissionFunctionDesc,
           });
           break;
         }
