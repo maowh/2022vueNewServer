@@ -93,19 +93,24 @@ router.post("/updaterole", async function (req, res, next) {
     const [{ msg }] = err.errors;
     next(boom.badRequest(msg));
   } else {
-    console.log(req.body[0].userId);
+    console.log(req.body);
+    console.log(req.body.userId);
     roleService
-      .delRole(req.body[0].userId)
+      .delRole(req.body.userId)
       .then(() => {
         console.log("删除成功");
-        roleService
-          .updateRole(req.body)
-          .then(() => {
-            new Result(null, "更新角色成功").success(res);
-          })
-          .catch((err) => {
-            next(boom.badImplementation(err));
-          });
+        if (req.body.userRoles.length > 0) {
+          roleService
+            .updateRole(req.body.userRoles)
+            .then(() => {
+              new Result(null, "更新角色成功").success(res);
+            })
+            .catch((err) => {
+              next(boom.badImplementation(err));
+            });
+        } else {
+          new Result(null, "更新角色成功").success(res);
+        }
       })
       .catch((err) => {
         next(boom.badImplementation(err));
@@ -135,19 +140,24 @@ router.post("/distributepermission", async function (req, res, next) {
     next(boom.badRequest(msg));
   } else {
     console.log(req.body);
-    console.log(req.body[0].roleId);
+    console.log(req.body.permissions);
+    console.log(req.body.roleId);
     roleService
-      .delPermissionRole(req.body[0].roleId)
+      .delPermissionRole(req.body.roleId)
       .then(() => {
         console.log("删除成功");
-        roleService
-          .updatePermissionRole(req.body)
-          .then(() => {
-            new Result(null, "更新角色成功").success(res);
-          })
-          .catch((err) => {
-            next(boom.badImplementation(err));
-          });
+        if (req.body.permissions.length > 0) {
+          roleService
+            .updatePermissionRole(req.body.permissions)
+            .then(() => {
+              new Result(null, "更新角色成功").success(res);
+            })
+            .catch((err) => {
+              next(boom.badImplementation(err));
+            });
+        } else {
+          new Result(null, "更新角色成功").success(res);
+        }
       })
       .catch((err) => {
         next(boom.badImplementation(err));

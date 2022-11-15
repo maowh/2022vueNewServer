@@ -6,7 +6,16 @@ function login({ username, password }, next) {
 }
 
 function findUser({ username }, next) {
-  const sql = `select * from user where username='${username}'`;
+  const sql = `SELECT c.id,c.username,c.avatar,c.mobile,c.openTime,b.id roleId,b.title,e.permissionMark,f.permissionFunctionMark FROM userrole a right JOIN role b ON a.roleId=b.id
+  RIGHT JOIN user c ON a.userId=c.id
+  INNER JOIN rolepermissionfunction d ON a.roleId=d.roleId
+  LEFT JOIN permission e ON d.permissionId=e.id
+  LEFT JOIN permissionfunction f ON d.permissionfunctionId=f.id
+   WHERE c.username='${username}'`;
+  return querySql(sql, next);
+}
+function findUserInfo({ username }, next) {
+  const sql = `select user.id,user.username,user.avatar,user.mobile,user.openTime from user where username='${username}'`;
   return queryOne(sql, next);
 }
 
@@ -55,6 +64,7 @@ function addUserList(table) {
 module.exports = {
   login,
   findUser,
+  findUserInfo,
   findFeature,
   findChapter,
   findUserList,

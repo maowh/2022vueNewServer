@@ -51,17 +51,74 @@ router.get("/info", async function (req, res, next) {
   // onsole.log(req[Symbol(kHeaders)].authorization);
   // 根据前端的请求拦截器，获取前端传过来的token并解析出用户名
   const decoded = decode(req.rawHeaders[11]);
+  console.log(req.rawHeaders[11]);
   // 如果token有效并且token包含用户名
   if (decoded && decoded.username) {
     const user = await userService.findUser(
       { username: decoded.username },
       next
     );
-    if (user) {
-      delete user.password;
-      new Result(user, "获取用户信息成功").success(res);
+    const role = [];
+    const menus = [];
+    const points = [];
+    console.log(user);
+    if (user.length > 0) {
+      console.log("2");
+      for (let i = 0; i < user.length; i++) {
+        // console.log(role.indexOf({ roleId: user[i].roleId }) === -1);
+        if (user[i].roleId !== "") {
+          role.push({ roleId: user[i].roleId, title: user[i].title });
+        }
+        if (user[i].permissionMark !== "") {
+          menus.push(user[i].permissionMark);
+        }
+        if (user[i].permissionFunctionMark !== "") {
+          points.push(user[i].permissionFunctionMark);
+        }
+      }
+      const unique = (arr) => {
+        const res = new Map();
+        return arr.filter(
+          (arr) => !res.has(arr.roleId) && res.set(arr.roleId, 1)
+        );
+      };
+      const userTmp = {
+        id: user[0].id,
+        username: user[0].username,
+        avatar: user[0].avatar,
+        mobile: user[0].mobile,
+        openTime: user[0].openTime,
+        role: unique(role),
+        permission: {
+          menus: [...new Set(menus)],
+          points: [...new Set(points)],
+        },
+      };
+      // console.log(userTmp);
+      if (userTmp) {
+        // delete user.password;
+        new Result(userTmp, "获取用户信息成功").success(res);
+      } else {
+        new Result(null, "获取用户信息失败").fail(res);
+      }
     } else {
-      new Result(null, "获取用户信息失败").fail(res);
+      const userInfo = await userService.findUserInfo(
+        { username: decoded.username },
+        next
+      );
+      const userTmpInfo = {
+        id: userInfo.id,
+        username: userInfo.username,
+        avatar: userInfo.avatar,
+        mobile: userInfo.mobile,
+        openTime: userInfo.openTime,
+        role: null,
+        permission: {
+          menus: [],
+          points: [],
+        },
+      };
+      new Result(userTmpInfo, "用户没有分配角色信息").success(res);
     }
   } else {
     new Result(null, "用户信息解析失败").fail(res);
