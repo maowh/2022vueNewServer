@@ -31,9 +31,9 @@ function insert(importData, tableName) {
 }
 
 // 更新sql
-function update(model, tableName) {
+function update(model, tableName, where) {
   // return sqlWrapper(db.insert(importData, tableName), next);
-  return db.update(model, tableName);
+  return db.update(model, tableName, where);
 }
 
 // 使用boom抓取错误

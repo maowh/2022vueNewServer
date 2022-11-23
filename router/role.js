@@ -20,7 +20,6 @@ router.get("/rolelist", async function (req, res, next) {
 
 router.get("/permissionlist", async function (req, res, next) {
   const permissionList = await roleService.permissionList();
-  console.log(permissionList);
   const testArr = [];
   const resultArr = [];
   for (let i = 0; i < permissionList.length; i++) {
@@ -93,12 +92,9 @@ router.post("/updaterole", async function (req, res, next) {
     const [{ msg }] = err.errors;
     next(boom.badRequest(msg));
   } else {
-    console.log(req.body);
-    console.log(req.body.userId);
     roleService
       .delRole(req.body.userId)
       .then(() => {
-        console.log("删除成功");
         if (req.body.userRoles.length > 0) {
           roleService
             .updateRole(req.body.userRoles)
@@ -139,13 +135,9 @@ router.post("/distributepermission", async function (req, res, next) {
     const [{ msg }] = err.errors;
     next(boom.badRequest(msg));
   } else {
-    console.log(req.body);
-    console.log(req.body.permissions);
-    console.log(req.body.roleId);
     roleService
       .delPermissionRole(req.body.roleId)
       .then(() => {
-        console.log("删除成功");
         if (req.body.permissions.length > 0) {
           roleService
             .updatePermissionRole(req.body.permissions)

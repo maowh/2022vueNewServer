@@ -45,43 +45,42 @@ function queryOne(sql) {
       });
   });
 }
-// function update(model, tableName, where) {
-//   return new Promise((resolve, reject) => {
-//     if (isObject(model)) {
-//       reject(new Error("插入数据库失败，插入数据对象"));
-//     } else {
-//       const entry = [];
-//       Object.keys(model).forEach((key) => {
-//         if (model.hasOwnProperty(key)) {
-//           entry.push(`\`${key}\`='${model[key]}'`);
-//         }
-//       });
-//       if (entry.length > 0) {
-//         let sql = `UPDATE \`${tableName}\` SET`;
-//         sql = `${sql} ${entry.join(",")} ${where}`;
-
-//         const conn = connect();
-//         try {
-//           conn.query(sql, (err, result) => {
-//             if (err) {
-//               reject(err);
-//             } else {
-//               resolve(result);
-//             }
-//           });
-//         } catch (e) {
-//           reject(e);
-//         } finally {
-//           conn.end();
-//         }
-//       } else {
-//         reject(new Error("sql解析失败"));
-//       }
-//     }
-//   });
-// }
+function update(model, tableName, where) {
+  return new Promise((resolve, reject) => {
+    if (isObject(model)) {
+      reject(new Error("插入数据库失败，插入数据对象"));
+    } else {
+      const entry = [];
+      Object.keys(model).forEach((key) => {
+        if (model.hasOwnProperty(key)) {
+          entry.push(`\`${key}\`='${model[key]}'`);
+        }
+      });
+      if (entry.length > 0) {
+        let sql = `UPDATE \`${tableName}\` SET`;
+        sql = `${sql} ${entry.join(",")} ${where}`;
+        console.log(sql);
+        const conn = connect();
+        try {
+          conn.query(sql, (err, result) => {
+            if (err) {
+              reject(err);
+            } else {
+              resolve(result);
+            }
+          });
+        } catch (e) {
+          reject(e);
+        } finally {
+          conn.end();
+        }
+      } else {
+        reject(new Error("sql解析失败"));
+      }
+    }
+  });
+}
 function insert(model, tableName) {
-  console.log(tableName, model);
   return new Promise((resolve, reject) => {
     if (isObject(model)) {
       reject(new Error("插入数据库失败，插入数据对象"));
@@ -124,7 +123,6 @@ function insert(model, tableName) {
           valuesString = "(" + `${values.toString()}` + ")";
         }
         sql = `${sql}${keysString}) VALUES ${valuesString}`;
-        console.log(sql);
         const conn = connect();
         try {
           conn.query(sql, (err, result) => {
@@ -159,4 +157,5 @@ module.exports = {
   querySql,
   queryOne,
   insert,
+  update,
 };

@@ -16,12 +16,6 @@ router.post(
     body("password").isString().withMessage("password类型不正确"),
   ],
   async function (req, res, next) {
-    // const { username, password } = req.body
-    // if (username === 'super-admin' && password === '123456') {
-    //   new Result({ username }, '登录成功').success(res)
-    // } else {
-    //   new Result({ username }, '登录失败').fail(res)
-    // }
     const err = validationResult(req);
     // 如果报错，则抛出错误
     if (!err.isEmpty()) {
@@ -51,7 +45,6 @@ router.get("/info", async function (req, res, next) {
   // onsole.log(req[Symbol(kHeaders)].authorization);
   // 根据前端的请求拦截器，获取前端传过来的token并解析出用户名
   const decoded = decode(req.rawHeaders[11]);
-  console.log(req.rawHeaders[11]);
   // 如果token有效并且token包含用户名
   if (decoded && decoded.username) {
     const user = await userService.findUser(
@@ -61,9 +54,7 @@ router.get("/info", async function (req, res, next) {
     const role = [];
     const menus = [];
     const points = [];
-    console.log(user);
     if (user.length > 0) {
-      console.log("2");
       for (let i = 0; i < user.length; i++) {
         // console.log(role.indexOf({ roleId: user[i].roleId }) === -1);
         if (user[i].roleId !== "") {
@@ -205,7 +196,6 @@ router.get("/delete", function (req, res, next) {
 
 router.get("/detail", async function (req, res, next) {
   const { id } = req.query;
-  console.log(req.query);
   if (!id) {
     next(boom.badRequest(new Error("参数id不能为空")));
   } else {
