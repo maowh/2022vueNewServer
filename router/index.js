@@ -6,6 +6,7 @@ const jwtAuth = require("./jwt");
 const userRouter = require("./user");
 const roleRouter = require("./role");
 const articleRouter = require("./article");
+const costRouter = require("./cost");
 
 // 注册路由
 const router = express.Router();
@@ -19,6 +20,7 @@ router.get("/", function (req, res) {
 router.use("/user", userRouter);
 router.use("/role", roleRouter);
 router.use("/article", articleRouter);
+router.use("/cost", costRouter);
 
 // 集中处理404请求的中间件
 // 注意：该中间件必须放在正常处理流程之后，否则会拦截正常请求

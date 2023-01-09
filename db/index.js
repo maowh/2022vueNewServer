@@ -123,6 +123,7 @@ function insert(model, tableName) {
           valuesString = "(" + `${values.toString()}` + ")";
         }
         sql = `${sql}${keysString}) VALUES ${valuesString}`;
+        console.log(sql);
         const conn = connect();
         try {
           conn.query(sql, (err, result) => {

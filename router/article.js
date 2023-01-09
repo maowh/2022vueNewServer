@@ -53,6 +53,7 @@ router.get("/articleList", async function (req, res, next) {
       new Result({ list, total }, "获取信息成功").success(res);
     } else {
       let list = articleLists.splice((currentPage - 1) * pageSize, pageSize);
+      console.log(list, total);
       new Result({ list, total }, "获取信息成功").success(res);
     }
   } else {
