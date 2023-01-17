@@ -31,7 +31,6 @@ router.get("/articleList", async function (req, res, next) {
   //         ],
   //       });
   //       testArr.push(userLists[i].username);
-  //       // console.log(testArr)
   //     } else {
   //       for (let j = 0; j < resultArr.length; j++) {
   //         if (resultArr[j].username === userLists[i].username) {
@@ -43,7 +42,6 @@ router.get("/articleList", async function (req, res, next) {
   //       }
   //     }
   //   }
-  // console.log(resultArr, resultArr.length);
   if (articleLists) {
     let total = articleLists.length;
     // 计算总的页数
@@ -53,7 +51,6 @@ router.get("/articleList", async function (req, res, next) {
       new Result({ list, total }, "获取信息成功").success(res);
     } else {
       let list = articleLists.splice((currentPage - 1) * pageSize, pageSize);
-      console.log(list, total);
       new Result({ list, total }, "获取信息成功").success(res);
     }
   } else {
@@ -118,8 +115,6 @@ router.post("/edit", async function (req, res, next) {
     const importData = req.body;
     const importDataId = importData.id;
     delete importData.id;
-    console.log(importData);
-    console.log(importDataId);
     const articleEdit = await articleService.articleEdit(
       importData,
       importDataId

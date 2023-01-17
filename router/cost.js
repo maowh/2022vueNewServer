@@ -87,6 +87,7 @@ router.get("/detail", async function (req, res, next) {
 });
 router.get("/display", async function (req, res, next) {
   // const { id } = req.query;
+  console.log(req.query);
   if (!req.query.id) {
     next(boom.badRequest(new Error("参数id不能为空")));
   } else {
@@ -94,8 +95,9 @@ router.get("/display", async function (req, res, next) {
       req.query.table,
       req.query.id
     );
+    console.log(costDetail);
     if (costDetail) {
-      new Result(costDetail[0], "获取信息成功").success(res);
+      new Result(costDetail, "获取信息成功").success(res);
     } else {
       new Result(null, "获取信息失败").fail(res);
     }
@@ -109,6 +111,7 @@ router.post("/create", async function (req, res, next) {
     const [{ msg }] = err.errors;
     next(boom.badRequest(msg));
   } else {
+    console.log(req.body);
     const createData = req.body;
     const createDataValue = [createData.data._value];
     const field = Object.keys(createData.data._value)[0];
@@ -136,6 +139,41 @@ router.post("/create", async function (req, res, next) {
   }
 });
 
+router.post("/createsingle", async function (req, res, next) {
+  const err = validationResult(req);
+  // 如果报错，则抛出错误
+  if (!err.isEmpty()) {
+    const [{ msg }] = err.errors;
+    next(boom.badRequest(msg));
+  } else {
+    console.log(req.body);
+    const createData = req.body;
+    const createDataValue = [createData.data];
+    // const field = Object.keys(createData.data)[0];
+    // const fieldValue = Object.values(createData.data)[0];
+    // const costExists = await costService.costExists(
+    //   createData.table,
+    //   // 获取判断值是否存在的字段名称
+    //   field,
+    //   fieldValue
+    //   // createData.data._value.classificationName
+    // );
+    // if (!costExists) {
+    const costInsert = await costService.costCreate(
+      createData.table,
+      createDataValue
+    );
+    if (costInsert) {
+      new Result("新增数据成功", "新增数据成功").success(res);
+    } else {
+      new Result("新增数据失败", "新增数据失败").fail(res);
+    }
+    // } else {
+    //   new Result("数据已存在不能重复", "数据已存在不能重复").success(res);
+    // }
+  }
+});
+
 router.post("/edit", async function (req, res, next) {
   const err = validationResult(req);
   // 如果报错，则抛出错误
@@ -143,6 +181,7 @@ router.post("/edit", async function (req, res, next) {
     const [{ msg }] = err.errors;
     next(boom.badRequest(msg));
   } else {
+    console.log(req.body);
     const editData = req.body;
     const editDataId = editData.data._value.id;
     delete editData.data._value.id;
@@ -180,15 +219,14 @@ router.post("/editsingle", async function (req, res, next) {
     const [{ msg }] = err.errors;
     next(boom.badRequest(msg));
   } else {
-    console.log(req.body);
     const editData = req.body;
-    const editDataId = editData.data._value.id;
-    delete editData.data._value.id;
-    const field = Object.keys(editData.data._value)[0];
-    const fieldValue = Object.values(editData.data._value)[0];
+    const editDataId = editData.data.id;
+    delete editData.data.id;
+    const field = Object.keys(editData.data)[0];
+    const fieldValue = Object.values(editData.data)[0];
     const costEdit = await costService.costEdit(
       editData.table,
-      editData.data._value,
+      editData.data,
       editDataId
     );
     if (costEdit) {

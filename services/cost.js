@@ -53,11 +53,12 @@ function costDisplay(table, id) {
     if (table === "systeminformation") {
       sql = `SELECT a.id,a.SystemName,a.customerId,a.domainManagerId,b.customer AS customerName,c.domainManager AS domainManagerName FROM systeminformation a RIGHT JOIN customerinformation b ON a.customerId=b.id RIGHT JOIN domaininformation c ON a.domainManagerId=c.id where a.id=${id}`;
     } else if (table === "outsourcingcosts") {
-      sql = `SELECT a.id,b.SystemName,c.customer AS customerName,d.businessDivision,d.businessLines,d.domain,d.domainManager,a.year,a.month,a.reportedAmount,a.contractAmount,a.taxAmount,f.classificationName,e.systemEngineer,e.seniorSap,e.seniorSoftwareEngineer,e.dbaEngineer,e.seniorSystemEngineer,e.intermediateSap,e.seniorDbaEngineer,e.softwareEngineer,e.totalAmount,e.totalManpower FROM outsourcingcosts a LEFT JOIN systeminformation b ON a.systemId=b.id
-      LEFT JOIN customerinformation c ON b.customerId=c.id LEFT JOIN domaininformation d ON b.domainManagerId=d.id LEFT JOIN outsourcingcostsmoney e ON a.id=e.outsourcingCostsId LEFT JOIN classificationinformation f ON e.classification=f.id where a.id=${id}`;
-    } else {
-      sql = `SELECT * FROM ${table} WHERE id='${id}'`;
+      sql = `SELECT a.id,b.SystemName,c.customer AS customerName,d.businessDivision,d.businessLines,d.domain,d.domainManager,a.year,a.month,a.reportedAmount,a.contractAmount,a.taxAmount FROM outsourcingcosts a LEFT JOIN systeminformation b ON a.systemId=b.id
+      LEFT JOIN customerinformation c ON b.customerId=c.id LEFT JOIN domaininformation d ON b.domainManagerId=d.id where a.id=${id}`;
+    } else if (table === "outsourcingcostsmoney") {
+      sql = `SELECT * FROM outsourcingcostsmoney WHERE outsourcingCostsId=${id}`;
     }
+    console.log(sql);
     return querySql(sql);
   }
 }
@@ -72,6 +73,7 @@ function costCreate(table, model) {
 function costEdit(table, model, id) {
   //   const tableName = "article";
   const where = `where id=${id}`;
+  console.log(table, model, id);
   return update(model, table, where);
 }
 module.exports = {

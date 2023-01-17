@@ -42,7 +42,6 @@ router.get("/permissionlist", async function (req, res, next) {
         ],
       });
       testArr.push(permissionList[i].permissionName);
-      // console.log(testArr)
     } else if (permissionList[i].permissionFunctionName == null) {
       resultArr.push({
         permissionId: permissionList[i].permissionId,

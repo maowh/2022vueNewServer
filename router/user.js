@@ -56,7 +56,6 @@ router.get("/info", async function (req, res, next) {
     const points = [];
     if (user.length > 0) {
       for (let i = 0; i < user.length; i++) {
-        // console.log(role.indexOf({ roleId: user[i].roleId }) === -1);
         if (user[i].roleId !== "") {
           role.push({ roleId: user[i].roleId, title: user[i].title });
         }
@@ -85,7 +84,6 @@ router.get("/info", async function (req, res, next) {
           points: [...new Set(points)],
         },
       };
-      // console.log(userTmp);
       if (userTmp) {
         // delete user.password;
         new Result(userTmp, "获取用户信息成功").success(res);
@@ -121,8 +119,6 @@ router.get("/userList", async function (req, res, next) {
   const currentPage = req.query.page;
   const pageSize = req.query.size;
   const userLists = await userService.findUserList();
-  // console.log(userLists.length);
-  // console.log(userLists);
   const testArr = [];
   const resultArr = [];
   for (let i = 0; i < userLists.length; i++) {
@@ -140,7 +136,6 @@ router.get("/userList", async function (req, res, next) {
         ],
       });
       testArr.push(userLists[i].username);
-      // console.log(testArr)
     } else {
       for (let j = 0; j < resultArr.length; j++) {
         if (resultArr[j].username === userLists[i].username) {
@@ -152,7 +147,6 @@ router.get("/userList", async function (req, res, next) {
       }
     }
   }
-  // console.log(resultArr, resultArr.length);
   if (resultArr) {
     let total = resultArr.length;
     // 计算总的页数
@@ -222,7 +216,6 @@ router.get("/detail", async function (req, res, next) {
           ],
         });
         testArr.push(userDetail[i].username);
-        // console.log(testArr)
       } else {
         for (let j = 0; j < resultArr.length; j++) {
           if (resultArr[j].username === userDetail[i].username) {
