@@ -28,7 +28,11 @@ function costListDisplay(table) {
   } else if (table === "systeminformation") {
     sql =
       "SELECT a.id,a.SystemName,a.customerId,a.domainManagerId,b.customer AS customerName,c.domainManager AS domainManagerName FROM systeminformation a left JOIN customerinformation b ON a.customerId=b.id left JOIN domaininformation c ON a.domainManagerId=c.id";
+  } else if (table === "coefficientinformation") {
+    sql =
+      "SELECT a.*,b.customer FROM coefficientinformation a LEFT JOIN customerinformation b ON a.customerId=b.id";
   }
+
   console.log(sql);
   return querySql(sql);
 }
@@ -48,6 +52,7 @@ function costDetail(table, id) {
 }
 
 function costDisplay(table, id) {
+  console.log(table, id);
   let sql = "";
   if (id) {
     if (table === "systeminformation") {
@@ -57,6 +62,8 @@ function costDisplay(table, id) {
       LEFT JOIN customerinformation c ON b.customerId=c.id LEFT JOIN domaininformation d ON b.domainManagerId=d.id where a.id=${id}`;
     } else if (table === "outsourcingcostsmoney") {
       sql = `SELECT * FROM outsourcingcostsmoney WHERE outsourcingCostsId=${id}`;
+    } else if (table === "coefficientinformation") {
+      sql = `SELECT a.*,b.customer FROM coefficientinformation a LEFT JOIN customerinformation b ON a.customerId=b.id where a.id=${id}`;
     }
     console.log(sql);
     return querySql(sql);

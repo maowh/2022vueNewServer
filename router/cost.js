@@ -164,7 +164,7 @@ router.post("/createsingle", async function (req, res, next) {
       createDataValue
     );
     if (costInsert) {
-      new Result("新增数据成功", "新增数据成功").success(res);
+      new Result(costInsert, "新增数据成功").success(res);
     } else {
       new Result("新增数据失败", "新增数据失败").fail(res);
     }
