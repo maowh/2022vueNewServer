@@ -7,6 +7,7 @@ const userRouter = require("./user");
 const roleRouter = require("./role");
 const articleRouter = require("./article");
 const costRouter = require("./cost");
+const { route } = require("./cost");
 
 // 注册路由
 const router = express.Router();

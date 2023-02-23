@@ -116,11 +116,18 @@ router.post("/create", async function (req, res, next) {
     const createDataValue = [createData.data._value];
     const field = Object.keys(createData.data._value)[0];
     const fieldValue = Object.values(createData.data._value)[0];
+    console.log(createData.table, createDataValue);
+    // const costExists = await costService.costExists(
+    //   createData.table,
+    //   // 获取判断值是否存在的字段名称
+    //   field,
+    //   fieldValue
+    //   // createData.data._value.classificationName
+    // );
     const costExists = await costService.costExists(
       createData.table,
       // 获取判断值是否存在的字段名称
-      field,
-      fieldValue
+      createDataValue[0]
       // createData.data._value.classificationName
     );
     if (!costExists) {
@@ -147,6 +154,7 @@ router.post("/createsingle", async function (req, res, next) {
     next(boom.badRequest(msg));
   } else {
     console.log(req.body);
+    console.log(1);
     const createData = req.body;
     const createDataValue = [createData.data];
     // const field = Object.keys(createData.data)[0];
@@ -158,19 +166,26 @@ router.post("/createsingle", async function (req, res, next) {
     //   fieldValue
     //   // createData.data._value.classificationName
     // );
-    // if (!costExists) {
-    const costInsert = await costService.costCreate(
+    console.log(createData.table, createDataValue);
+    const costExists = await costService.costExists(
       createData.table,
-      createDataValue
+      // 获取判断值是否存在的字段名称
+      createDataValue[0]
+      // createData.data._value.classificationName
     );
-    if (costInsert) {
-      new Result(costInsert, "新增数据成功").success(res);
+    if (!costExists) {
+      const costInsert = await costService.costCreate(
+        createData.table,
+        createDataValue
+      );
+      if (costInsert) {
+        new Result(costInsert, "新增数据成功").success(res);
+      } else {
+        new Result("新增数据失败", "新增数据失败").fail(res);
+      }
     } else {
-      new Result("新增数据失败", "新增数据失败").fail(res);
+      new Result("数据已存在不能重复", "数据已存在不能重复").success(res);
     }
-    // } else {
-    //   new Result("数据已存在不能重复", "数据已存在不能重复").success(res);
-    // }
   }
 });
 
@@ -187,12 +202,19 @@ router.post("/edit", async function (req, res, next) {
     delete editData.data._value.id;
     const field = Object.keys(editData.data._value)[0];
     const fieldValue = Object.values(editData.data._value)[0];
+    // console.log(editData.table, editData.data._value);
+    // const costExists = await costService.costExists(
+    //   editData.table,
+    //   // 获取判断值是否存在的字段名称
+    //   field,
+    //   fieldValue
+    //   // editData.data._value.classificationName
+    // );
     const costExists = await costService.costExists(
       editData.table,
       // 获取判断值是否存在的字段名称
-      field,
-      fieldValue
-      // editData.data._value.classificationName
+      editData.data._value
+      // createData.data._value.classificationName
     );
     if (!costExists) {
       console.log(editData);
@@ -224,16 +246,41 @@ router.post("/editsingle", async function (req, res, next) {
     delete editData.data.id;
     const field = Object.keys(editData.data)[0];
     const fieldValue = Object.values(editData.data)[0];
-    const costEdit = await costService.costEdit(
+    // console.log(editData);
+    console.log("editDataId", editDataId);
+    const costExists = await costService.costExists(
       editData.table,
-      editData.data,
-      editDataId
+      // 获取判断值是否存在的字段名称
+      editData.data
+      // createData.data._value.classificationName
     );
-    if (costEdit) {
-      new Result("更新数据成功", "更新数据成功").success(res);
+    if (!costExists) {
+      const costEdit = await costService.costEdit(
+        editData.table,
+        editData.data,
+        editDataId
+      );
+      if (costEdit) {
+        new Result("更新数据成功", "更新数据成功").success(res);
+      } else {
+        new Result("更新数据失败", "更新数据失败").fail(res);
+      }
     } else {
-      new Result("更新数据失败", "更新数据失败").fail(res);
+      new Result("数据已存在不能重复", "数据已存在不能重复").success(res);
     }
+  }
+});
+
+router.post("/allselect", async function (req, res, next) {
+  console.log(req.body.table, req.body.data._value);
+  const costLists = await costService.allSelect(
+    req.body.table,
+    req.body.data._value
+  );
+  if (costLists) {
+    new Result(costLists.total, "获取信息成功").success(res);
+  } else {
+    new Result(null, "获取信息失败").fail(res);
   }
 });
 
