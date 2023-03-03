@@ -2,7 +2,6 @@ const e = require("express");
 const { queryOne, querySql, insert, update } = require("./index");
 
 // 判断是否存在
-// function costExists(table, field, data) {
 function costExists(table, value) {
   let sqlconn = "";
   console.log(table, value);
@@ -49,11 +48,6 @@ function allSelect(table, value) {
 
 // 查看列表
 function costList(table) {
-  // let sql = "";
-  // if (table === "systeminformation") {
-  //   sql =
-  //     "SELECT a.id,a.SystemName,a.customerId,a.domainManagerId,b.customer AS customerName,c.domainManager AS domainManagerName FROM systeminformation a left JOIN customerinformation b ON a.customerId=b.id left JOIN domaininformation c ON a.domainManagerId=c.id";
-  // } else {
   const sql = `SELECT * FROM ${table}`;
   // }
   return querySql(sql);
@@ -74,6 +68,9 @@ function costListDisplay(table) {
   } else if (table === "personnelload") {
     sql =
       "SELECT a.id,b.name,a.`year`,c.SystemName,a.`load` FROM personnelload a LEFT JOIN personnel b ON a.personnelId=b.id LEFT JOIN systeminformation c ON a.systemId=c.id";
+  } else if (table === "costsreport") {
+    sql =
+      "SELECT a.id,c.customer,b.SystemName,d.businessDivision,d.businessLines,d.domain,d.domainManager,a.year,a.month,e.totalAmount,e.totalManpower,e.systemEngineer,e.seniorSap,e.seniorSoftwareEngineer,e.dbaEngineer,e.seniorSystemEngineer,e.intermediateSap,e.seniorDbaEngineer,e.softwareEngineer FROM outsourcingcosts a LEFT JOIN systeminformation b ON a.systemId=b.id LEFT JOIN customerinformation c ON b.customerId=c.id LEFT JOIN domaininformation d ON b.domainManagerId=d.id LEFT JOIN outsourcingcostsmoney e ON a.id=e.outsourcingCostsId WHERE e.classification='运维'";
   }
   console.log(sql);
   return querySql(sql);
@@ -116,13 +113,11 @@ function costDisplay(table, id) {
 
 // 新增
 function costCreate(table, model) {
-  //   const tableName = "article";
   return insert(model, table);
 }
 
 // 编辑
 function costEdit(table, model, id) {
-  //   const tableName = "article";
   const where = `where id=${id}`;
   console.log(table, model, id);
   return update(model, table, where);

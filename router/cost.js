@@ -247,13 +247,14 @@ router.post("/editsingle", async function (req, res, next) {
     const field = Object.keys(editData.data)[0];
     const fieldValue = Object.values(editData.data)[0];
     // console.log(editData);
-    console.log("editDataId", editDataId);
+
     const costExists = await costService.costExists(
       editData.table,
       // 获取判断值是否存在的字段名称
       editData.data
       // createData.data._value.classificationName
     );
+    console.log(editData, costExists);
     if (!costExists) {
       const costEdit = await costService.costEdit(
         editData.table,
