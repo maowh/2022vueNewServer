@@ -91,6 +91,7 @@ router.get("/display", async function (req, res, next) {
   if (!req.query.id) {
     next(boom.badRequest(new Error("参数id不能为空")));
   } else {
+    // console.log(req.query.id, 1);
     const costDetail = await costService.costDisplay(
       req.query.table,
       req.query.id
@@ -274,12 +275,14 @@ router.post("/editsingle", async function (req, res, next) {
 
 router.post("/allselect", async function (req, res, next) {
   console.log(req.body.table, req.body.data._value);
+
   const costLists = await costService.allSelect(
     req.body.table,
     req.body.data._value
   );
   if (costLists) {
-    new Result(costLists.total, "获取信息成功").success(res);
+    console.log(costLists, costLists[0].total);
+    new Result(costLists, "获取信息成功").success(res);
   } else {
     new Result(null, "获取信息失败").fail(res);
   }
