@@ -1,5 +1,6 @@
 const e = require("express");
 const { queryOne, querySql, insert, update } = require("./index");
+const dayjs = require("dayjs");
 
 // 判断是否存在
 function costExists(table, value) {
@@ -17,7 +18,7 @@ function costExists(table, value) {
   }
   // 系统信息判断重复
   else if (table === "systeminformation") {
-    sqlconn = `select * from systeminformation where SystemName='${value.SystemName}'`;
+    sqlconn = `select * from systeminformation where SystemName='${value.SystemName}' and business='${value.business}' and customerId='${value.customerId}' and operationManagerId='${value.operationManagerId}' and developManagerId='${value.developManagerId}' `;
   }
   // 系统费用分解信息判断重复
   else if (table === "outsourcingcosts") {
@@ -44,13 +45,67 @@ function allSelect(table, value) {
   } else if (table === "outsourcingcostsplan") {
     sqlconn = `select * from outsourcingcostsplan  where systemId='${value.systemId}' and YEAR='${value.year}'`;
   } else if (table === "costsreportsearch" && !value.id) {
-    if (value.customer) {
-      sqlconn = `SELECT a.id,c.customer,b.SystemName,d.businessDivision,d.businessLines,d.domain,d.domainManager,a.year,a.month,e.totalAmount,e.totalManpower,e.systemEngineer,e.seniorSap,e.seniorSoftwareEngineer,e.dbaEngineer,e.seniorSystemEngineer,e.intermediateSap,e.seniorDbaEngineer,e.softwareEngineer FROM outsourcingcosts a LEFT JOIN systeminformation b ON a.systemId=b.id LEFT JOIN customerinformation c ON b.customerId=c.id LEFT JOIN domaininformation d ON b.domainManagerId=d.id LEFT JOIN outsourcingcostsmoney e ON a.id=e.outsourcingCostsId WHERE e.classification='运维' and c.customer like '%${value.customer}%'`;
-    } else if (value.SystemName) {
-      sqlconn = `SELECT a.id,c.customer,b.SystemName,d.businessDivision,d.businessLines,d.domain,d.domainManager,a.year,a.month,e.totalAmount,e.totalManpower,e.systemEngineer,e.seniorSap,e.seniorSoftwareEngineer,e.dbaEngineer,e.seniorSystemEngineer,e.intermediateSap,e.seniorDbaEngineer,e.softwareEngineer FROM outsourcingcosts a LEFT JOIN systeminformation b ON a.systemId=b.id LEFT JOIN customerinformation c ON b.customerId=c.id LEFT JOIN domaininformation d ON b.domainManagerId=d.id LEFT JOIN outsourcingcostsmoney e ON a.id=e.outsourcingCostsId WHERE e.classification='运维' and b.SystemName like '%${value.SystemName}%'`;
-    } else if (value.domain) {
-      sqlconn = `SELECT a.id,c.customer,b.SystemName,d.businessDivision,d.businessLines,d.domain,d.domainManager,a.year,a.month,e.totalAmount,e.totalManpower,e.systemEngineer,e.seniorSap,e.seniorSoftwareEngineer,e.dbaEngineer,e.seniorSystemEngineer,e.intermediateSap,e.seniorDbaEngineer,e.softwareEngineer FROM outsourcingcosts a LEFT JOIN systeminformation b ON a.systemId=b.id LEFT JOIN customerinformation c ON b.customerId=c.id LEFT JOIN domaininformation d ON b.domainManagerId=d.id LEFT JOIN outsourcingcostsmoney e ON a.id=e.outsourcingCostsId WHERE e.classification='运维' and d.domain like '%${value.domain}%'`;
+    let strValue1 = "";
+    let strValue2 = "";
+    let strValue3 = "";
+    for (let key in value) {
+      // 打印对象的key和value
+      console.log(key, value[key]);
+      if (key === "classification") {
+        if (value[key] === "operationDevelopAmount") {
+          strValue2 = "";
+        } else if (value[key] === "developAmount") {
+          strValue2 = "e.classification = '开发'";
+        } else if (value[key] === "operation") {
+          strValue2 = "e.classification = '运维'";
+        }
+      } else if (key === "year") {
+        // if (value[key] instanceof Date && !isNaN(value[key])) {
+          if (value[key]!== 'Invalid Date') {
+          strValue3 = `a.year=${value[key]}`;
+        } 
+        console.log('strValue3',key,strValue3)
+      } else if (key === "customer") {
+        strValue1 = `c.customer like '%${value.customer}%'`;
+      } else if (key === "SystemName") {
+        strValue1 = `b.SystemName like '%${value.SystemName}%'`;
+      } else if (key === "businessDivision") {
+        strValue1 = `d.businessDivision like '%${value.domain}%'`;
+      } else if (key === "businessLines") {
+        strValue1 = `d.businessLines like '%${value.domain}%'`;
+      } else if (key === "domain") {
+        strValue1 = `d.domain like '%${value.domain}%'`;
+      } else if (key === "business") {
+        strValue1 = `b.business like '%${value.business}%'`;
+      }
     }
+    let where = "";
+    if (strValue1 !== "" && strValue2 !== "" && strValue3 !== "") {
+      where = " where " + strValue1 + " and " + strValue2 + " and " + strValue3;
+    } else if (strValue1 === "" && strValue2 !== "" && strValue3 !== "") {
+      where = " where " + strValue2 + " and " + strValue3;
+    } else if (strValue1 === "" && strValue2 === "" && strValue3 !== "") {
+      where = " where " + strValue3;
+    } else if (strValue1 === "" && strValue2 !== "" && strValue3 === "") {
+      where = " where " + strValue2;
+    } else if (strValue1 !== "" && strValue2 === "" && strValue3 === "") {
+      where = " where " + strValue1;
+    } else if (strValue1 !== "" && strValue2 !== "" && strValue3 === "") {
+      where = " where " + strValue1 + " and " + strValue2;
+    } else if (strValue1 !== "" && strValue2 === "" && strValue3 !== "") {
+      where = " where " + strValue1 + " and " + strValue3;
+    }
+    console.log(where);
+    sqlconn =
+      "SELECT a.id,c.customer,b.SystemName,(case when e.classification='开发' then f.businessDivision ELSE d.businessDivision end) AS businessDivision,(case when e.classification='开发' then f.businessLines ELSE d.businessLines end) AS businessLines,(case when e.classification='开发' then f.domain ELSE d.domain end) AS domain,b.business,(case when e.classification='开发' then f.domainManager ELSE d.domainManager end) AS domainManager,a.year,a.month,e.totalAmount,e.totalManpower,e.systemEngineer,e.seniorSap,e.seniorSoftwareEngineer,e.dbaEngineer,e.seniorSystemEngineer,e.intermediateSap,e.seniorDbaEngineer,e.softwareEngineer FROM outsourcingcosts a LEFT JOIN systeminformation b ON a.systemId=b.id LEFT JOIN customerinformation c ON b.customerId=c.id LEFT JOIN domaininformation d ON b.operationManagerId=d.id LEFT JOIN domaininformation f ON b.developManagerId=f.id LEFT JOIN outsourcingcostsmoney e ON a.id=e.outsourcingCostsId" +
+      where;
+    // if (value.customer) {
+    //   sqlconn = `SELECT a.id,c.customer,b.SystemName,b.business,d.businessDivision,d.businessLines,d.domain,d.domainManager,a.year,a.month,
+    //   e.totalAmount,e.totalManpower,e.systemEngineer,e.seniorSap,e.seniorSoftwareEngineer,e.dbaEngineer,e.seniorSystemEngineer,
+    //   e.intermediateSap,e.seniorDbaEngineer,e.softwareEngineer FROM outsourcingcosts a LEFT JOIN systeminformation b ON a.systemId=b.id
+    //   LEFT JOIN customerinformation c ON b.customerId=c.id LEFT JOIN domaininformation d ON b.operationManagerId=d.id
+    //   LEFT JOIN outsourcingcostsmoney e ON a.id=e.outsourcingCostsId WHERE e.classification='运维' and c.customer like '%${value.customer}%'`;
+    // }
   }
   console.log("allSelect", sqlconn);
   if (sqlconn !== "") {
@@ -68,15 +123,16 @@ function costList(table) {
 function costListDisplay(table) {
   console.log(table);
   let sql = "";
+  const currentYear = dayjs(new Date()).format("YYYY");
   if (table === "outsourcingcosts") {
     sql =
-      "SELECT a.id,b.SystemName,a.year,a.month,a.reportedAmount,a.contractAmount,a.taxAmount FROM outsourcingcosts a LEFT JOIN systeminformation b ON a.systemId=b.id LEFT JOIN customerinformation c ON b.customerId=c.id LEFT JOIN domaininformation d ON b.domainManagerId=d.id";
+      "SELECT a.id,b.SystemName,a.year,a.month,a.reportedAmount,a.operationAmount,a.developAmount,a.contractAmount,a.taxAmount FROM outsourcingcosts a LEFT JOIN systeminformation b ON a.systemId=b.id LEFT JOIN customerinformation c ON b.customerId=c.id";
   } else if (table === "outsourcingcostsplan") {
     sql =
-      "SELECT a.id,b.SystemName,a.year,a.reportedAmount,a.contractAmount,a.taxAmount FROM outsourcingcostsplan a LEFT JOIN systeminformation b ON a.systemId=b.id LEFT JOIN customerinformation c ON b.customerId=c.id LEFT JOIN domaininformation d ON b.domainManagerId=d.id";
+      "SELECT a.id,b.SystemName,a.year,a.reportedAmount,a.operationAmount,a.developAmount,a.contractAmount,a.taxAmount FROM outsourcingcostsplan a LEFT JOIN systeminformation b ON a.systemId=b.id LEFT JOIN customerinformation c ON b.customerId=c.id";
   } else if (table === "systeminformation") {
     sql =
-      "SELECT a.id,a.SystemName,a.customerId,a.domainManagerId,b.customer AS customerName,c.domainManager AS domainManagerName FROM systeminformation a left JOIN customerinformation b ON a.customerId=b.id left JOIN domaininformation c ON a.domainManagerId=c.id";
+      "SELECT a.id,a.SystemName,a.business,a.customerId,a.operationManagerId,a.developManagerId,b.customer AS customerName,c.domainManager AS operationManagerName,d.domainManager AS developManagerName FROM systeminformation a left JOIN customerinformation b ON a.customerId=b.id left JOIN domaininformation c ON a.operationManagerId=c.id left JOIN domaininformation d ON a.developManagerId=d.id";
   } else if (table === "coefficientinformation") {
     sql =
       "SELECT a.*,b.customer FROM coefficientinformation a LEFT JOIN customerinformation b ON a.customerId=b.id";
@@ -84,8 +140,7 @@ function costListDisplay(table) {
     sql =
       "SELECT a.id,b.name,a.year,a.month,c.SystemName,a.load FROM personnelload a LEFT JOIN personnel b ON a.personnelId=b.id LEFT JOIN systeminformation c ON a.systemId=c.id";
   } else if (table === "costsreport") {
-    sql =
-      "SELECT a.id,c.customer,b.SystemName,d.businessDivision,d.businessLines,d.domain,d.domainManager,a.year,a.month,e.totalAmount,e.totalManpower,e.systemEngineer,e.seniorSap,e.seniorSoftwareEngineer,e.dbaEngineer,e.seniorSystemEngineer,e.intermediateSap,e.seniorDbaEngineer,e.softwareEngineer FROM outsourcingcosts a LEFT JOIN systeminformation b ON a.systemId=b.id LEFT JOIN customerinformation c ON b.customerId=c.id LEFT JOIN domaininformation d ON b.domainManagerId=d.id LEFT JOIN outsourcingcostsmoney e ON a.id=e.outsourcingCostsId WHERE e.classification='运维'";
+    sql = `SELECT a.id,c.customer,b.SystemName,(case when e.classification='开发' then f.businessDivision ELSE d.businessDivision end) AS businessDivision,(case when e.classification='开发' then f.businessLines ELSE d.businessLines end) AS businessLines,(case when e.classification='开发' then f.domain ELSE d.domain end) AS domain,b.business,(case when e.classification='开发' then f.domainManager ELSE d.domainManager end) AS domainManager,a.year,a.month,e.totalAmount,e.totalManpower,e.systemEngineer,e.seniorSap,e.seniorSoftwareEngineer,e.dbaEngineer,e.seniorSystemEngineer,e.intermediateSap,e.seniorDbaEngineer,e.softwareEngineer FROM outsourcingcosts a LEFT JOIN systeminformation b ON a.systemId=b.id LEFT JOIN customerinformation c ON b.customerId=c.id LEFT JOIN domaininformation d ON b.operationManagerId=d.id LEFT JOIN domaininformation f ON b.developManagerId=f.id LEFT JOIN outsourcingcostsmoney e ON a.id=e.outsourcingCostsId where a.year=${currentYear}`;
   } else if (table === "coststandard") {
     sql =
       "SELECT a.id,b.customer,a.year FROM coststandard a LEFT JOIN customerinformation b ON a.customerId=b.id";
@@ -119,13 +174,13 @@ function costDisplay(table, id) {
   let sql = "";
   if (id) {
     if (table === "systeminformation") {
-      sql = `SELECT a.id,a.SystemName,a.customerId,a.domainManagerId,b.customer AS customerName,c.domainManager AS domainManagerName FROM systeminformation a RIGHT JOIN customerinformation b ON a.customerId=b.id RIGHT JOIN domaininformation c ON a.domainManagerId=c.id where a.id=${id}`;
+      sql = `SELECT a.id,a.SystemName,a.business,a.customerId,a.operationManagerId,a.developManagerId,b.customer AS customerName,c.domainManager AS operationManagerName,d.domainManager AS developManagerName FROM systeminformation a RIGHT JOIN customerinformation b ON a.customerId=b.id RIGHT JOIN domaininformation c ON a.operationManagerId=c.id RIGHT JOIN domaininformation d ON a.developManagerId=d.id where a.id=${id}`;
     } else if (table === "outsourcingcosts") {
-      sql = `SELECT a.id,a.systemId,b.SystemName,c.id AS customerId,c.customer AS customerName,d.businessDivision,d.businessLines,d.domain,d.domainManager,a.year,a.month,a.reportedAmount,a.contractAmount,a.taxAmount FROM outsourcingcosts a LEFT JOIN systeminformation b ON a.systemId=b.id
-      LEFT JOIN customerinformation c ON b.customerId=c.id LEFT JOIN domaininformation d ON b.domainManagerId=d.id where a.id=${id}`;
+      sql = `SELECT a.id,a.systemId,b.SystemName,c.id AS customerId,c.customer AS customerName,d.businessDivision,d.businessLines,d.domain,d.domainManager AS operationManagerName,e.domainManager AS developManagerName,a.year,a.month,a.reportedAmount,a.contractAmount,a.taxAmount FROM outsourcingcosts a LEFT JOIN systeminformation b ON a.systemId=b.id
+      LEFT JOIN customerinformation c ON b.customerId=c.id LEFT JOIN domaininformation d ON b.operationManagerId=d.id LEFT JOIN domaininformation e ON b.developManagerId=e.id where a.id=${id}`;
     } else if (table === "outsourcingcostsplan") {
-      sql = `SELECT a.id,a.systemId,b.SystemName,c.id AS customerId,c.customer AS customerName,d.businessDivision,d.businessLines,d.domain,d.domainManager,a.year,a.reportedAmount,a.contractAmount,a.taxAmount FROM outsourcingcostsplan a LEFT JOIN systeminformation b ON a.systemId=b.id
-      LEFT JOIN customerinformation c ON b.customerId=c.id LEFT JOIN domaininformation d ON b.domainManagerId=d.id where a.id=${id}`;
+      sql = `SELECT a.id,a.systemId,b.SystemName,c.id AS customerId,c.customer AS customerName,d.businessDivision,d.businessLines,d.domain,d.domainManager AS operationManagerName,e.domainManager AS developManagerName,a.year,a.reportedAmount,a.contractAmount,a.taxAmount FROM outsourcingcostsplan a LEFT JOIN systeminformation b ON a.systemId=b.id
+      LEFT JOIN customerinformation c ON b.customerId=c.id LEFT JOIN domaininformation d ON b.operationManagerId=d.id LEFT JOIN domaininformation e ON b.developManagerId=e.id where a.id=${id}`;
     } else if (table === "outsourcingcostsmoney") {
       sql = `SELECT * FROM outsourcingcostsmoney WHERE outsourcingCostsId=${id} or outsourcingCostsPlanId=${id}`;
     } else if (

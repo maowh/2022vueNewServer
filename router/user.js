@@ -44,7 +44,9 @@ router.post(
 router.get("/info", async function (req, res, next) {
   // onsole.log(req[Symbol(kHeaders)].authorization);
   // 根据前端的请求拦截器，获取前端传过来的token并解析出用户名
-  const decoded = decode(req.rawHeaders[11]);
+  console.log(req.rawHeaders[7]);
+  const decoded = decode(req.rawHeaders[7]);
+  // const decoded = decode(req.rawHeaders[7]);
   // 如果token有效并且token包含用户名
   if (decoded && decoded.username) {
     const user = await userService.findUser(

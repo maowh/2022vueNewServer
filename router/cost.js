@@ -36,17 +36,22 @@ router.get("/listdisplay", async function (req, res, next) {
   const pageSize = req.query.size;
   console.log(req.query);
   const costLists = await costService.costListDisplay(req.query.table);
-  console.log(costLists);
+  console.log("costLists1:", costLists);
+  let constTmpLists = [...costLists];
+  let lists = constTmpLists.splice(0, constTmpLists.length);
+  console.log("costLists2:", costLists);
   if (costLists) {
     let total = costLists.length;
     // 计算总的页数
     // let pages = Math.ceil(total / pageSize);
     if (currentPage == "") {
       let list = costLists.splice(0, pageSize);
-      new Result({ list, total }, "获取信息成功").success(res);
+      console.log("lists:", lists, "list:", list);
+      new Result({ lists, list, total }, "获取信息成功").success(res);
     } else {
       let list = costLists.splice((currentPage - 1) * pageSize, pageSize);
-      new Result({ list, total }, "获取信息成功").success(res);
+      console.log("lists:", lists, "list:", list);
+      new Result({ lists, list, total }, "获取信息成功").success(res);
     }
   } else {
     new Result(null, "获取信息失败").fail(res);
@@ -275,14 +280,47 @@ router.post("/editsingle", async function (req, res, next) {
 
 router.post("/allselect", async function (req, res, next) {
   console.log(req.body.table, req.body.data._value);
-
   const costLists = await costService.allSelect(
     req.body.table,
     req.body.data._value
   );
   if (costLists) {
-    console.log(costLists, costLists[0].total);
     new Result(costLists, "获取信息成功").success(res);
+  } else {
+    new Result(null, "获取信息失败").fail(res);
+  }
+});
+
+router.post("/allselectpage", async function (req, res, next) {
+  console.log(req.body);
+  const currentPage = req.body.page;
+  const pageSize = req.body.size;
+  // console.log(req.body.table, req.body.data._value);
+  const costLists = await costService.allSelect(
+    req.body.table,
+    req.body.data._value
+  );
+  // if (costLists) {
+  //   new Result(costLists, "获取信息成功").success(res);
+  // } else {
+  //   new Result(null, "获取信息失败").fail(res);
+  // }
+  let constTmpLists = [...costLists];
+  let lists = constTmpLists.splice(0, constTmpLists.length);
+  console.log("costLists2:", costLists);
+  if (costLists) {
+    let total = costLists.length;
+    // 计算总的页数
+    // let pages = Math.ceil(total / pageSize);
+    if (currentPage == "") {
+      let list = costLists.splice(0, pageSize);
+      console.log("lists:", lists, "list:", list);
+      new Result({ lists, list, total }, "获取信息成功").success(res);
+    } else {
+      let list = costLists.splice((currentPage - 1) * pageSize, pageSize);
+      console.log("lists:", lists, "list:", list);
+      new Result({ lists, list, total }, "获取信息成功").success(res);
+    }
   } else {
     new Result(null, "获取信息失败").fail(res);
   }
