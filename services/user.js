@@ -19,6 +19,11 @@ function findUserInfo({ username }, next) {
   return queryOne(sql, next);
 }
 
+function updatePwd({ username, password }, next) {
+  const sql = `UPDATE user SET password='${password}' where username='${username}'`;
+  return querySql(sql, next);
+}
+
 function findUserList() {
   const sql =
     "SELECT a.id,a.username,a.avatar,a.mobile,a.openTime,c.title FROM userrole b RIGHT JOIN user a ON b.userId=a.id LEFT JOIN role c ON b.roleId=c.id";
@@ -71,4 +76,5 @@ module.exports = {
   addUserList,
   removeUser,
   userDetail,
+  updatePwd,
 };

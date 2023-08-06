@@ -205,7 +205,8 @@ router.post("/edit", async function (req, res, next) {
     console.log(req.body);
     const editData = req.body;
     const editDataId = editData.data._value.id;
-    delete editData.data._value.id;
+    // delete editData.data._value.id;
+    editData.data._value.id;
     const field = Object.keys(editData.data._value)[0];
     const fieldValue = Object.values(editData.data._value)[0];
     // console.log(editData.table, editData.data._value);

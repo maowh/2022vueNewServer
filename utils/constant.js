@@ -4,5 +4,6 @@ module.exports = {
   CODE_TOKEN_EXPIRED: -2,
   PWD_SALT: "admin_user_node",
   PRIVATE_KEY: "admin_user_node_test_youbaobao_xyz",
-  JWT_EXPIRED: 60 * 60,
+  // token失效时间1个小时
+  JWT_EXPIRED: 12 * 60 * 60,
 };

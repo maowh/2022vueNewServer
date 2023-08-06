@@ -21,9 +21,12 @@ router.post(
     if (!err.isEmpty()) {
       const [{ msg }] = err.errors;
       next(boom.badRequest(msg));
+      console.log("1");
     } else {
+      console.log("2");
       const username = req.body.username;
       const password = req.body.password;
+      console.log(username, password);
       // 对密码进行加密
       // const password = md5(`${req.body.password}${PWD_SALT}`)
       const user = await userService.login({ username, password }, next);
@@ -113,6 +116,52 @@ router.get("/info", async function (req, res, next) {
     }
   } else {
     new Result(null, "用户信息解析失败").fail(res);
+  }
+});
+
+// 判断用户输入原始密码是否正确
+router.get("/originalPwd", async function (req, res, next) {
+  const err = validationResult(req);
+  // 如果报错，则抛出错误
+  if (!err.isEmpty()) {
+    const [{ msg }] = err.errors;
+    next(boom.badRequest(msg));
+  } else {
+    console.log(req);
+    const username = req.query.username;
+    const password = req.query.password;
+    console.log(username, password);
+    // 对密码进行加密
+    // const password = md5(`${req.body.password}${PWD_SALT}`)
+    const user = await userService.login({ username, password }, next);
+    // 如果用户存在，进行token认证，并设置token加密的字符串和设置token有效时长
+    if (user) {
+      // 返回token和登录成功信息，还有登录成功的标记0
+      new Result(user, "用户原始密码正确").success(res);
+    } else {
+      new Result(null, "用户原始密码不正确").fail(res);
+    }
+  }
+});
+// 更新用户密码
+router.get("/updatePwd", async function (req, res, next) {
+  const err = validationResult(req);
+  // 如果报错，则抛出错误
+  if (!err.isEmpty()) {
+    const [{ msg }] = err.errors;
+    next(boom.badRequest(msg));
+  } else {
+    console.log(req.query);
+    const username = req.query.username;
+    const password = req.query.password;
+    await userService
+      .updatePwd({ username, password }, next)
+      .then(() => {
+        new Result(null, "更新密码成功").success(res);
+      })
+      .catch((err) => {
+        next(boom.badImplementation(err));
+      });
   }
 });
 
