@@ -87,7 +87,8 @@ function allSelect(table, value) {
       } else if (key === "customer") {
         strValue1 = `customer like '%${value.customer}%'`;
       } else if (key === "SystemName") {
-        strValue1 = `b.SystemName like '%${value.SystemName}%'`;
+        // strValue1 = `b.SystemName like '%${value.SystemName}%'`;
+        strValue1 = `SystemName like '%${value.SystemName}%'`;
       } else if (key === "businessDivision") {
         strValue1 = `businessDivision like '%${value.businessDivision}%'`;
       } else if (key === "businessLines") {
@@ -154,10 +155,10 @@ function costListDisplay(table) {
   const currentYear = dayjs(new Date()).format("YYYY");
   if (table === "outsourcingcosts") {
     sql =
-      "SELECT a.id,a.systemId,b.SystemName,c.customer,a.year,a.month,a.reportedAmount,a.operationAmount,a.developAmount,a.contractAmount,a.taxAmount FROM outsourcingcosts a LEFT JOIN systeminformation b ON a.systemId=b.id LEFT JOIN customerinformation c ON b.customerId=c.id";
+      "SELECT a.id,a.systemId,b.SystemName,b.business,c.customer,a.year,a.month,a.reportedAmount,a.operationAmount,a.developAmount,a.contractAmount,a.taxAmount FROM outsourcingcosts a LEFT JOIN systeminformation b ON a.systemId=b.id LEFT JOIN customerinformation c ON b.customerId=c.id";
   } else if (table === "outsourcingcostsplan") {
     sql =
-      "SELECT a.id,b.SystemName,a.year,a.reportedAmount,a.operationAmount,a.developAmount,a.contractAmount,a.taxAmount FROM outsourcingcostsplan a LEFT JOIN systeminformation b ON a.systemId=b.id LEFT JOIN customerinformation c ON b.customerId=c.id";
+      "SELECT a.id,a.systemId,b.SystemName,a.year,a.reportedAmount,a.operationAmount,a.developAmount,a.contractAmount,a.taxAmount FROM outsourcingcostsplan a LEFT JOIN systeminformation b ON a.systemId=b.id LEFT JOIN customerinformation c ON b.customerId=c.id";
   } else if (table === "systeminformation") {
     sql =
       "SELECT a.id,a.SystemName,a.business,a.customerId,a.operationManagerId,a.developManagerId,b.customer AS customerName,c.domainManager AS operationManagerName,d.domainManager AS developManagerName FROM systeminformation a left JOIN customerinformation b ON a.customerId=b.id left JOIN domaininformation c ON a.operationManagerId=c.id left JOIN domaininformation d ON a.developManagerId=d.id";
@@ -166,7 +167,7 @@ function costListDisplay(table) {
       "SELECT a.*,b.customer FROM coefficientinformation a LEFT JOIN customerinformation b ON a.customerId=b.id";
   } else if (table === "personnelload") {
     sql =
-      "SELECT a.id,a.systemId,a.personnelId,b.name,a.yearMonth,a.startYearMonth,a.endYearMonth,a.year,a.month,c.SystemName,a.load FROM personnelload a LEFT JOIN personnel b ON a.personnelId=b.id LEFT JOIN systeminformation c ON a.systemId=c.id";
+      "SELECT a.id,a.systemId,a.personnelId,b.name,b.business,a.yearMonth,a.startYearMonth,a.endYearMonth,a.year,a.month,c.SystemName,a.load FROM personnelload a LEFT JOIN personnel b ON a.personnelId=b.id LEFT JOIN systeminformation c ON a.systemId=c.id";
   } else if (table === "costsreport") {
     sql = `SELECT a.id,c.customer,b.SystemName,(case when e.classification='开发' then f.businessDivision ELSE d.businessDivision end) AS businessDivision,(case when e.classification='开发' then f.businessLines ELSE d.businessLines end) AS businessLines,(case when e.classification='开发' then f.domain ELSE d.domain end) AS domain,b.business,(case when e.classification='开发' then f.domainManager ELSE d.domainManager end) AS domainManager,a.year,a.month,e.totalAmount,e.contractAmount,e.taxAmount,e.totalManpower,e.systemEngineer,e.seniorSap,e.seniorSoftwareEngineer,e.dbaEngineer,e.seniorSystemEngineer,e.intermediateSap,e.seniorDbaEngineer,e.softwareEngineer FROM outsourcingcosts a LEFT JOIN systeminformation b ON a.systemId=b.id LEFT JOIN customerinformation c ON b.customerId=c.id LEFT JOIN domaininformation d ON b.operationManagerId=d.id LEFT JOIN domaininformation f ON b.developManagerId=f.id LEFT JOIN outsourcingcostsmoney e ON a.id=e.outsourcingCostsId where a.year=${currentYear}`;
   } else if (table === "coststandard") {

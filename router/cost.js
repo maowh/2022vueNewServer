@@ -34,23 +34,20 @@ router.get("/listdisplay", async function (req, res, next) {
   // 传对应的页码数currentPage和一个页面的记录行数pageSize参数
   const currentPage = req.query.page;
   const pageSize = req.query.size;
-  console.log(req.query);
   const costLists = await costService.costListDisplay(req.query.table);
-  console.log("costLists1:", costLists);
   let constTmpLists = [...costLists];
   let lists = constTmpLists.splice(0, constTmpLists.length);
-  console.log("costLists2:", costLists);
   if (costLists) {
     let total = costLists.length;
     // 计算总的页数
     // let pages = Math.ceil(total / pageSize);
     if (currentPage == "") {
       let list = costLists.splice(0, pageSize);
-      console.log("lists:", lists, "list:", list);
+      console.log("lists1:", lists);
       new Result({ lists, list, total }, "获取信息成功").success(res);
     } else {
       let list = costLists.splice((currentPage - 1) * pageSize, pageSize);
-      console.log("lists:", lists, "list:", list);
+      console.log("lists2:", lists);
       new Result({ lists, list, total }, "获取信息成功").success(res);
     }
   } else {
