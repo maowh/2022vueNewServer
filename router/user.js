@@ -306,13 +306,17 @@ router.get("/feature", async function (req, res, next) {
 
 router.post("/import", async function (req, res, next) {
   const err = validationResult(req);
+  console.log("import的req数据：", req.body);
   // 如果报错，则抛出错误
   if (!err.isEmpty()) {
     const [{ msg }] = err.errors;
     next(boom.badRequest(msg));
   } else {
     const importData = req.body;
-    const userList = await userService.addUserList(importData);
+    const userList = await userService.addUserList(
+      importData.data,
+      importData.table
+    );
     if (userList) {
       new Result({ userList }, "导入数据成功").success(res);
     } else {

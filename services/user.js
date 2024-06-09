@@ -61,8 +61,9 @@ function findChapter() {
 }
 
 // 新增用户信息
-function addUserList(table) {
-  const tableName = "user";
+function addUserList(table, tableName) {
+  // const tableName = "user";
+  console.log(table, tableName);
   return insert(table, tableName);
 }
 

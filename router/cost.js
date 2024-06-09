@@ -14,16 +14,18 @@ router.get("/list", async function (req, res, next) {
   const currentPage = req.query.page;
   const pageSize = req.query.size;
   const costLists = await costService.costList(req.query.table);
+  let constTmpLists = [...costLists];
+  let lists = constTmpLists.splice(0, constTmpLists.length);
   if (costLists) {
     let total = costLists.length;
     // 计算总的页数
     // let pages = Math.ceil(total / pageSize);
     if (currentPage == "") {
       let list = costLists.splice(0, pageSize);
-      new Result({ list, total }, "获取信息成功").success(res);
+      new Result({ lists, list, total }, "获取信息成功").success(res);
     } else {
       let list = costLists.splice((currentPage - 1) * pageSize, pageSize);
-      new Result({ list, total }, "获取信息成功").success(res);
+      new Result({ lists, list, total }, "获取信息成功").success(res);
     }
   } else {
     new Result(null, "获取信息失败").fail(res);
@@ -35,6 +37,7 @@ router.get("/listdisplay", async function (req, res, next) {
   const currentPage = req.query.page;
   const pageSize = req.query.size;
   const costLists = await costService.costListDisplay(req.query.table);
+  console.log("costLists:", costLists);
   let constTmpLists = [...costLists];
   let lists = constTmpLists.splice(0, constTmpLists.length);
   if (costLists) {
@@ -43,11 +46,11 @@ router.get("/listdisplay", async function (req, res, next) {
     // let pages = Math.ceil(total / pageSize);
     if (currentPage == "") {
       let list = costLists.splice(0, pageSize);
-      console.log("lists1:", lists);
+      // console.log("lists1:", lists);
       new Result({ lists, list, total }, "获取信息成功").success(res);
     } else {
       let list = costLists.splice((currentPage - 1) * pageSize, pageSize);
-      console.log("lists2:", lists);
+      // console.log("lists2:", lists);
       new Result({ lists, list, total }, "获取信息成功").success(res);
     }
   } else {
@@ -89,7 +92,7 @@ router.get("/detail", async function (req, res, next) {
 });
 router.get("/display", async function (req, res, next) {
   // const { id } = req.query;
-  console.log(req.query);
+  console.log(req.query.table, req.query.id);
   if (!req.query.id) {
     next(boom.badRequest(new Error("参数id不能为空")));
   } else {
@@ -98,7 +101,7 @@ router.get("/display", async function (req, res, next) {
       req.query.table,
       req.query.id
     );
-    console.log(costDetail);
+    // console.log(costDetail);
     if (costDetail) {
       new Result(costDetail, "获取信息成功").success(res);
     } else {
@@ -108,25 +111,20 @@ router.get("/display", async function (req, res, next) {
 });
 
 router.post("/create", async function (req, res, next) {
+  console.log("test", req);
   const err = validationResult(req);
   // 如果报错，则抛出错误
   if (!err.isEmpty()) {
     const [{ msg }] = err.errors;
     next(boom.badRequest(msg));
   } else {
-    console.log(req.body);
+    // console.log(req.body);
     const createData = req.body;
+    console.log("test1", createData);
     const createDataValue = [createData.data._value];
     const field = Object.keys(createData.data._value)[0];
     const fieldValue = Object.values(createData.data._value)[0];
     console.log(createData.table, createDataValue);
-    // const costExists = await costService.costExists(
-    //   createData.table,
-    //   // 获取判断值是否存在的字段名称
-    //   field,
-    //   fieldValue
-    //   // createData.data._value.classificationName
-    // );
     const costExists = await costService.costExists(
       createData.table,
       // 获取判断值是否存在的字段名称
@@ -134,12 +132,13 @@ router.post("/create", async function (req, res, next) {
       // createData.data._value.classificationName
     );
     if (!costExists) {
+      console.log("createDataValue:", createDataValue);
       const costInsert = await costService.costCreate(
         createData.table,
         createDataValue
       );
       if (costInsert) {
-        new Result("新增数据成功", "新增数据成功").success(res);
+        new Result(costInsert, "新增数据成功").success(res);
       } else {
         new Result("新增数据失败", "新增数据失败").fail(res);
       }
@@ -206,14 +205,6 @@ router.post("/edit", async function (req, res, next) {
     editData.data._value.id;
     const field = Object.keys(editData.data._value)[0];
     const fieldValue = Object.values(editData.data._value)[0];
-    // console.log(editData.table, editData.data._value);
-    // const costExists = await costService.costExists(
-    //   editData.table,
-    //   // 获取判断值是否存在的字段名称
-    //   field,
-    //   fieldValue
-    //   // editData.data._value.classificationName
-    // );
     const costExists = await costService.costExists(
       editData.table,
       // 获取判断值是否存在的字段名称
@@ -305,18 +296,18 @@ router.post("/allselectpage", async function (req, res, next) {
   // }
   let constTmpLists = [...costLists];
   let lists = constTmpLists.splice(0, constTmpLists.length);
-  console.log("costLists2:", costLists);
+  "costLists2:", costLists;
   if (costLists) {
     let total = costLists.length;
     // 计算总的页数
     // let pages = Math.ceil(total / pageSize);
     if (currentPage == "") {
       let list = costLists.splice(0, pageSize);
-      console.log("lists:", lists, "list:", list);
+      // console.log("lists:", lists, "list:", list);
       new Result({ lists, list, total }, "获取信息成功").success(res);
     } else {
       let list = costLists.splice((currentPage - 1) * pageSize, pageSize);
-      console.log("lists:", lists, "list:", list);
+      // console.log("lists:", lists, "list:", list);
       new Result({ lists, list, total }, "获取信息成功").success(res);
     }
   } else {
