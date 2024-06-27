@@ -211,6 +211,7 @@ router.post("/edit", async function (req, res, next) {
       editData.data._value
       // createData.data._value.classificationName
     );
+    console.log("是否存在校验", costExists);
     if (!costExists) {
       console.log(editData);
       const costEdit = await costService.costEdit(
